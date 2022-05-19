@@ -1,0 +1,33 @@
+version: "3.4"
+services:
+  vagent:
+    build:
+      context: .
+      target: dev_image
+    tty: true
+    env_file:
+      - .env
+    environment:
+      DJANGO_SETTINGS_MODULE: virtual_agent.settings
+      IPYTHONDIR: /opt/.ipython
+      POSTGRES_HOST: vagent_db
+    links:
+      - vagent_db
+    ports:
+      -  "${APP_PORT:-8000}:8000"
+    depends_on:
+      - vagent_db
+    volumes:
+      - .:/opt:cached
+
+  vagent_db:
+    image: postgres:12.5
+    env_file:
+      - .env
+    volumes:
+      - vagent_data:/var/lib/postgresql/data:cached
+      - .:/opt:cached
+
+volumes:
+  vagent_data:
+    external: false
