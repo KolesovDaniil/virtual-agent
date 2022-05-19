@@ -1,0 +1,14 @@
+.gitignore
+.git
+.idea
+.env
+venv
+.mypy_cache
+.pytest_cache
+data/
+pycharm
+allure-results
+.ipython
+.bash_history
+.pycharm_helpers
+build/

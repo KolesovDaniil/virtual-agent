@@ -1,0 +1,48 @@
+[tool.black]
+target-version = ['py36']
+skip-string-normalization = true
+skip-magic-trailing-comma = true
+exclude = '''
+(
+  /(
+      \.git
+    | \.mypy_cache
+    | \.venv
+    | venv
+    | src
+    | migrations
+    | data
+    | \.pytest_cache
+    | \.ipython
+  )/
+)
+'''
+
+[tool.isort]
+multi_line_output = 3
+include_trailing_comma = true
+use_parentheses = true
+line_length = 88
+skip_glob = [
+    '**/migrations/**',
+    '.git',
+    '.mypy_cache',
+    '.venv',
+    'data',
+    '.pytest_cache',
+    '.ipython',
+]
+combine_as_imports = true
+combine_star = true
+known_first_party = 'tj_social,comments'
+known_third_party = [
+    'rest_framework',
+    'allauth',
+    'django_filters',
+    'funcy',
+    'freezegun',
+    'openapi_core',
+    'openapi_spec_validator',
+    'openapi_schema_validator',
+    'drf_spectacular',
+]

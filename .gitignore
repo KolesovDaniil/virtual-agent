@@ -1,0 +1,9 @@
+.idea
+.ipython
+.venv
+venv
+__pycache__
+.env
+db.sqlite3
+.python-version
+build/

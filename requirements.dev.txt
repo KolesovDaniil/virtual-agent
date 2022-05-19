@@ -1,0 +1,25 @@
+-r requirements.txt
+typing_extensions
+black>21.4*
+isort>5
+factory-boy
+flake8
+flake8-print
+flake8-comprehensions
+flake8-debugger
+flake8-implicit-str-concat
+flake8-builtins
+flake8-sfs
+flake8-eradicate
+flake8-functions>0.0.5
+flake8-pytest-style
+flake8-expression-complexity
+flake8-cognitive-complexity
+flake8-simplify
+flake8-quotes
+bandit
+mypy
+pytest
+pytest-django
+pytest-mock
+ipdb

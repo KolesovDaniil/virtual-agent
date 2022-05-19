@@ -1,0 +1,4 @@
+[bandit]
+; B104 hardcoded_bind_all_interfaces
+; B101 use of assert detected
+skips = B104,B101
