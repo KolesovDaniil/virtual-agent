@@ -14,16 +14,16 @@ refresh:
 	make docker_migrate
 
 run:
-	docker-compose up asonika
+	docker-compose up vagent
 
 shell:
-	docker-compose run asonika python manage.py shell
+	docker-compose run vagent python manage.py shell
 
 docker_migrate:
-	docker-compose run asonika python manage.py migrate
+	docker-compose run vagent python manage.py migrate
 
 docker_test:
-	docker-compose run asonika pytest
+	docker-compose run vagent pytest
 
 format:
 	isort .

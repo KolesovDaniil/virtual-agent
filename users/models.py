@@ -16,6 +16,4 @@ class Student(User):
 
 class Teacher(User):
     uuid = models.UUIDField(primary_key=True)
-    position = models.CharField(max_length=256)
-    sex = models.CharField(max_length=256)
-    age = models.IntegerField()
+    position = models.CharField(verbose_name='Должность', max_length=256)
