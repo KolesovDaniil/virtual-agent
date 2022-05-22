@@ -35,7 +35,7 @@
 #         user.notifications.create(
 #             send_time=notification_send_time, text=notification_text
 #         )
-
-
+#
+#
 # def get_notification_text(materials: list[Material]) -> str:
 #     pass
