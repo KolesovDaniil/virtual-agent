@@ -37,6 +37,9 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'users.apps.UsersConfig',
     'chats.apps.ChatsConfig',
+    'courses.apps.CoursesConfig',
+    'rest_framework',
+    'drf_spectacular',
     'corsheaders',
 ]
 
@@ -95,6 +98,16 @@ REST_FRAMEWORK = {
     'DEFAULT_RENDERER_CLASSES': ('virtual_agent.renderer.EnvelopedJSONRenderer',),
 }
 
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'ASONIKA-K ADMIN',
+    'DESCRIPTION': 'Your project description',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+    'COMPONENT_SPLIT_REQUEST': True,
+}
+
+LATEST_API_VERSION = 1
+API_PREFIX = 'api/'
 
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
@@ -144,3 +157,9 @@ KiB = 1024 * BYTES
 MiB = 1024 * KiB
 
 MAX_FILE_SIZE_IN_BYTES = 20 * MiB
+
+
+# MOODLE
+MOODLE_BASE_URL = env('MOODLE_BASE_URL', str)
+MOODLE_SUPERUSER_USERNAME = env('MOODLE_SUPERUSER_USERNAME', str)
+MOODLE_SUPERUSER_PASSWORD = env('MOODLE_SUPERUSER_PASSWORD', str)

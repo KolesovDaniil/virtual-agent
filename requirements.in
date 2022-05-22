@@ -9,3 +9,6 @@ django-filter
 drf-spectacular
 humanize
 django-cors-headers
+requests
+django-ipware
+whatever
