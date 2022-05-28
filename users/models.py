@@ -1,7 +1,7 @@
 from typing import Any, Optional
 from uuid import uuid4
 
-from django.contrib.auth.models import User as DjangoUser
+from django.contrib.auth.models import AbstractUser
 from django.core.exceptions import ValidationError
 from django.db import models
 
@@ -36,7 +36,7 @@ class Group(models.Model):
     moodle_id = models.IntegerField(unique=True)
 
 
-class User(DjangoUser):
+class User(AbstractUser):
     uuid = models.UUIDField(primary_key=True, default=uuid4)
     moodle_groups = models.ManyToManyField(
         Group, verbose_name='Группы', related_name='students', null=True, blank=True

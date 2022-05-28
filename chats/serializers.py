@@ -21,8 +21,13 @@ class MessageSerializer(serializers.ModelSerializer):
 
 class CreateMessageSerializer(serializers.ModelSerializer):
     chat = serializers.SlugRelatedField(slug_field='uuid', queryset=Chat.objects.all())
-    user = serializers.SlugRelatedField(slug_field='uuid', queryset=User.objects.all())
 
     class Meta:
         model = Message
-        exclude = ['uuid']
+        exclude = ['uuid', 'user']
+
+
+class ChatSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Chat
+        fields = ['uuid', 'name', 'group']

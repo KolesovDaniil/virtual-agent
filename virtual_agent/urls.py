@@ -3,15 +3,16 @@ from django.views.decorators.csrf import ensure_csrf_cookie
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 from rest_framework.routers import SimpleRouter
 
-from chats.views import MessageViewSet
+from chats.views import GetUserChatsView, MessageViewSet
 from users.views import UserLoginView, UserLogoutView
 
 messages_router = SimpleRouter()
-messages_router.register('message', MessageViewSet, basename='message')
+messages_router.register('messages', MessageViewSet, basename='messages')
 
 api_urls = [
     path('login/', ensure_csrf_cookie(UserLoginView.as_view()), name='user_login'),
     path('logout/', UserLogoutView.as_view(), name='user_logout'),
+    path('chats/', GetUserChatsView.as_view(), name='user_chats'),
 ]
 
 urlpatterns = [
