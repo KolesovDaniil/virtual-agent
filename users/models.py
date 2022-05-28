@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, Optional
 from uuid import uuid4
 
 from django.contrib.auth.models import User as DjangoUser
@@ -33,17 +33,13 @@ class Group(models.Model):
     course = models.ForeignKey(
         'courses.Course', related_name='groups', on_delete=models.CASCADE
     )
+    moodle_id = models.IntegerField(unique=True)
 
 
 class User(DjangoUser):
     uuid = models.UUIDField(primary_key=True, default=uuid4)
-    group = models.ForeignKey(
-        Group,
-        verbose_name="Группа",
-        related_name="students",
-        on_delete=models.CASCADE,
-        null=True,
-        blank=True,
+    moodle_groups = models.ManyToManyField(
+        Group, verbose_name='Группы', related_name='students', null=True, blank=True
     )
     position = models.IntegerField(
         verbose_name='Должность',
@@ -52,11 +48,15 @@ class User(DjangoUser):
         blank=True,
     )
     image = models.URLField(verbose_name='Аватарка', null=True, blank=True)
+    moodle_id = models.IntegerField(unique=True)
     type = models.IntegerField(choices=UserTypes.choices())
 
-    def save(self, *args: Any, **kwargs: Any):
-        if self.type == UserTypes.STUDENT and not self.group:
-            raise ValidationError(f'Student: {self.uuid} must have group')
+    def save(
+        self, skip_checks: Optional[bool] = False, *args: Any, **kwargs: Any
+    ) -> None:
+        if skip_checks:
+            super().save(*args, **kwargs)
+            return
         elif self.type == UserTypes.LECTURER and not self.position:
             raise ValidationError(f'Lecturer: {self.uuid} must have position')
         super().save(*args, **kwargs)

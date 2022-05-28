@@ -2,14 +2,13 @@ from uuid import uuid4
 
 from django.db import models
 
-from courses.models import Course
-from users.models import User
+from users.models import Group, User
 
 
 class Chat(models.Model):
     uuid = models.UUIDField(primary_key=True, default=uuid4)
     name = models.CharField(max_length=256)
-    group = models.OneToOneField(Course, related_name='chat', on_delete=models.CASCADE)
+    group = models.OneToOneField(Group, related_name='chat', on_delete=models.CASCADE)
 
 
 class Message(models.Model):

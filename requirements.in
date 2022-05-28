@@ -12,3 +12,4 @@ django-cors-headers
 requests
 django-ipware
 whatever
+furl

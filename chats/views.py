@@ -6,6 +6,7 @@ from rest_framework.exceptions import PermissionDenied
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.serializers import Serializer
+from rest_framework.views import APIView
 
 from virtual_agent.utils import ResponseWithStatusAndError
 
@@ -38,7 +39,7 @@ class MessageViewSet(
 
         chat = request_serializer.validated_data['chat']
 
-        if chat not in request.user.group.chats:
+        if chat.group not in request.user.moodle_groups:
             raise PermissionDenied('User can not write in this chat')
 
         message = request_serializer.save()
@@ -48,3 +49,11 @@ class MessageViewSet(
         )
 
         return Response(response_serializer.data, status=status.HTTP_201_CREATED)
+
+
+@extend_schema(
+    tags=['User'],
+    responses={'200': EmptyResponse, '4XX': ResponseWithStatusAndError},
+)
+class GetChatsView(APIView):
+
