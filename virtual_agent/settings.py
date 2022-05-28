@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'users.apps.UsersConfig',
     'chats.apps.ChatsConfig',
     'courses.apps.CoursesConfig',
+    'faq.apps.FaqConfig',
     'rest_framework',
     'drf_spectacular',
     'corsheaders',
