@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'courses.apps.CoursesConfig',
     'faq.apps.FaqConfig',
     'materials.apps.MaterialsConfig',
+    'notifications.apps.NotificationsConfig',
     'rest_framework',
     'drf_spectacular',
     'corsheaders',

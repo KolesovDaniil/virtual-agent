@@ -21,7 +21,7 @@ class MoodleMaterialTypes(str, ChoicesEnum):
 
 def get_material_type(
     material_type: MoodleMaterialTypes, contents_info: Optional[dict] = None
-) -> Optional[str]:
+) -> str:
     if material_type == MoodleMaterialTypes.QUIZ:
         return MaterialTypes.QUIZ
     if material_type == MoodleMaterialTypes.TEXT:

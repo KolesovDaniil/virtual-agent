@@ -14,18 +14,18 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='Chat',
-            fields=[
-                ('uuid', models.UUIDField(default=uuid.uuid4, primary_key=True, serialize=False)),
-                ('name', models.CharField(max_length=256)),
-            ],
-        ),
-        migrations.CreateModel(
-            name='Message',
+            name='Notification',
             fields=[
                 ('uuid', models.UUIDField(default=uuid.uuid4, primary_key=True, serialize=False)),
                 ('text', models.CharField(max_length=1024)),
-                ('chat', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='messages', to='chats.chat')),
+            ],
+        ),
+        migrations.CreateModel(
+            name='NotificationsTimetable',
+            fields=[
+                ('uuid', models.UUIDField(default=uuid.uuid4, primary_key=True, serialize=False)),
+                ('send_time', models.DateTimeField()),
+                ('notification', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='timetable', to='notifications.notification')),
             ],
         ),
     ]

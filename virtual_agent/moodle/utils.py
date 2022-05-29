@@ -1,8 +1,7 @@
 from datetime import datetime
-from typing import Iterable
+from typing import Optional
 
-from funcy import invoke, last, lcat, lmapcat, lpluck_attr
-from whatever import that
+from funcy import last, lmapcat, lpluck_attr
 
 from chats.models import Chat
 from courses.models import Course, Module
@@ -87,27 +86,28 @@ def create_modules_with_materials() -> None:
             materials_data = module_data['modules']
 
             for material_data in materials_data:
-                _create_materials_for_modules(material_data, module)
+                _create_material_for_module(material_data, module)
 
 
 def _create_module_for_course(module_data: dict, course: Course) -> Module:
     serializer = ModuleSerializer(data=module_data)
     serializer.is_valid(raise_exception=True)
-    moodle_module_id = serializer.validated_data['moodle_id']
-    module = course.modules.filter(moodle_id=moodle_module_id).first()
+    moodle_id = serializer.validated_data['moodle_id']
+    module = course.modules.filter(moodle_id=moodle_id).first()
 
     name = serializer.validated_data['name']
-    moodle_id = serializer.validated_data['moodle_id']
+    section = serializer.validated_data['section']
     if module:
         module.name = name
+        module.section = section
         module.save()
         return module
 
     else:
-        return course.modules.create(name=name, moodle_id=moodle_id)
+        return course.modules.create(name=name, moodle_id=moodle_id, section=section)
 
 
-def _create_materials_for_modules(material_data: dict, module: Module) -> None:
+def _create_material_for_module(material_data: dict, module: Module) -> None:
     serializer = MaterialSerializer(data=material_data)
     serializer.is_valid(raise_exception=True)
     moodle__id = serializer.validated_data['moodle_id']
@@ -129,12 +129,33 @@ def _create_materials_for_modules(material_data: dict, module: Module) -> None:
         material.save()
 
     else:
-        data = {'name': name, 'moodle_id': moodle__id, 'url': url, 'type': type}
+        data = {
+            'name': name,
+            'moodle_id': moodle__id,
+            'url': url,
+            'type': material_type,
+        }
         if deadline_timestamp:
-            data |= {'deadline': deadline_timestamp}
+            data |= {'deadline': datetime.fromtimestamp(deadline_timestamp)}
         material = module.materials.create(**data)
 
+    _check_if_material_is_deadline_quiz(material, deadline_timestamp)
     _create_checks_for_material(material)
+
+
+def _check_if_material_is_deadline_quiz(
+    material: Material, deadline_timestamp: Optional[int]
+) -> None:
+    material_name_words = material.name.lower().split(' ')
+
+    if 'deadline' not in material_name_words or material.type != MaterialTypes.QUIZ:
+        return
+
+    if not deadline_timestamp:
+        return
+
+    material.module.deadline = datetime.fromtimestamp(deadline_timestamp)
+    material.module.save()
 
 
 def _create_checks_for_material(material: Material) -> None:

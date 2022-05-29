@@ -1,16 +1,28 @@
 from rest_framework import serializers
+from typing import Optional
+from datetime import datetime
 
 from courses.models import Course
-from users.models import Group, User
+from users.models import Group
 
 
 class CourseSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(source='moodle_id')
     fullname = serializers.CharField(source='name')
+    startdate = serializers.IntegerField(source='start_date')
+    enddate = serializers.IntegerField(source='end_date')
 
     class Meta:
         model = Course
-        fields = ['uuid', 'id', 'fullname']
+        fields = ['uuid', 'id', 'fullname', 'startdate', 'enddate']
+
+    def validate_startdate(self, value: int) -> datetime:
+        return datetime.fromtimestamp(value)
+
+    def validate_enddate(self, value: int) -> Optional[datetime]:
+        if not value:
+            return
+        return datetime.fromtimestamp(value)
 
 
 class GroupSerializer(serializers.ModelSerializer):
@@ -28,6 +40,7 @@ class GroupSerializer(serializers.ModelSerializer):
 class ModuleSerializer(serializers.Serializer):
     id = serializers.IntegerField(source='moodle_id')
     name = serializers.CharField()
+    section = serializers.IntegerField()
 
 
 class MaterialSerializer(serializers.Serializer):

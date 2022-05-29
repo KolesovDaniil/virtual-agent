@@ -43,6 +43,9 @@ class CheckMaterial(models.Model):
     class Meta:
         unique_together = [('user', 'material')]
 
+    def __hash__(self):
+        return hash(str(self.uuid))
+
     @property
     def url(self) -> str:
         check_url = join_url_parts(
