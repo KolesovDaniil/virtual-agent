@@ -86,5 +86,22 @@ class MoodleAPI:
 
         return requests.request('POST', url).json()['groups']
 
+    def get_course_content(self, moodle_course_id: int) -> Response:
+        params = {
+            'wstoken': self.token,
+            'wsfunction': 'core_course_get_contents',
+            'moodlewsrestformat': 'json',
+            'courseid': moodle_course_id,
+        }
+        url = join_url_parts(
+            self.base_url,
+            'webservice/rest/server.php',
+            first_slash=False,
+            trailing_slash=False,
+        )
+        url = furl(url).add(params).url
+
+        return requests.request('POST', url).json()
+
 
 moodle_api = MoodleAPI()

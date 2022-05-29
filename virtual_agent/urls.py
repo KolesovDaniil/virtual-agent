@@ -6,6 +6,7 @@ from rest_framework.routers import SimpleRouter
 from chats.views import GetUserChatsView, MessageViewSet
 from courses.views import UserCoursesAPIView
 from faq.views import FAQAPIView
+from materials.views import MaterialCheckAPIView
 from users.views import UserLoginView, UserLogoutView
 
 messages_router = SimpleRouter()
@@ -17,6 +18,11 @@ api_urls = [
     path('chats/', GetUserChatsView.as_view(), name='user_chats'),
     path('faq/<str:course_uuid>/', FAQAPIView.as_view(), name='course_faq'),
     path('courses/', UserCoursesAPIView.as_view(), name='user_courses'),
+    path(
+        'materials-check/<str:material_check_uuid>/',
+        MaterialCheckAPIView.as_view(),
+        name='check_material',
+    ),
 ]
 
 urlpatterns = [

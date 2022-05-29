@@ -25,6 +25,8 @@ ALLOWED_HOSTS = env('ALLOWED_HOSTS', default=[])
 
 AUTH_USER_MODEL = 'users.User'
 
+BASE_URL = env('BASE_URL')
+
 
 # Application definition
 
@@ -39,6 +41,7 @@ INSTALLED_APPS = [
     'chats.apps.ChatsConfig',
     'courses.apps.CoursesConfig',
     'faq.apps.FaqConfig',
+    'materials.apps.MaterialsConfig',
     'rest_framework',
     'drf_spectacular',
     'corsheaders',

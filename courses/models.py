@@ -20,3 +20,10 @@ class Course(models.Model):
             first_slash=False,
             trailing_slash=False,
         )
+
+
+class Module(models.Model):
+    uuid = models.UUIDField(primary_key=True, default=uuid4)
+    name = models.CharField(max_length=128)
+    moodle_id = models.IntegerField(unique=True)
+    course = models.ForeignKey(Course, related_name='modules', on_delete=models.CASCADE)

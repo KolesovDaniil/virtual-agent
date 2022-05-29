@@ -1,9 +1,29 @@
+from datetime import datetime
+from typing import Iterable
+
+from funcy import invoke, last, lcat, lmapcat, lpluck_attr
+from whatever import that
+
 from chats.models import Chat
-from courses.models import Course
+from courses.models import Course, Module
+from materials.models import CheckMaterial, Material, MaterialTypes
+from materials.utils import get_material_type
 from users.models import Group, User
 
 from .api import moodle_api
-from .serializers import CourseSerializer, GroupSerializer
+from .serializers import (
+    CourseSerializer,
+    GroupSerializer,
+    MaterialSerializer,
+    ModuleSerializer,
+)
+
+
+def sync_database():
+    create_courses()
+    create_groups()
+    create_chats()
+    create_modules_with_materials()
 
 
 def create_courses() -> None:
@@ -54,3 +74,82 @@ def create_chats() -> None:
             chat_name = f'{group.course.name} {group.name}'
             chat = Chat(name=chat_name, group=group)
             chat.save()
+
+
+def create_modules_with_materials() -> None:
+    courses = Course.objects.all()
+
+    for course in courses:
+        data = moodle_api.get_course_content(course.moodle_id)
+
+        for module_data in data:
+            module = _create_module_for_course(module_data, course)
+            materials_data = module_data['modules']
+
+            for material_data in materials_data:
+                _create_materials_for_modules(material_data, module)
+
+
+def _create_module_for_course(module_data: dict, course: Course) -> Module:
+    serializer = ModuleSerializer(data=module_data)
+    serializer.is_valid(raise_exception=True)
+    moodle_module_id = serializer.validated_data['moodle_id']
+    module = course.modules.filter(moodle_id=moodle_module_id).first()
+
+    name = serializer.validated_data['name']
+    moodle_id = serializer.validated_data['moodle_id']
+    if module:
+        module.name = name
+        module.save()
+        return module
+
+    else:
+        return course.modules.create(name=name, moodle_id=moodle_id)
+
+
+def _create_materials_for_modules(material_data: dict, module: Module) -> None:
+    serializer = MaterialSerializer(data=material_data)
+    serializer.is_valid(raise_exception=True)
+    moodle__id = serializer.validated_data['moodle_id']
+    material = module.materials.filter(moodle_id=moodle__id).first()
+
+    name = serializer.validated_data['name']
+    url = serializer.validated_data['url']
+    dates = serializer.validated_data['dates']
+    contents_info = serializer.validated_data.get('contents_info')
+    material_type = get_material_type(serializer.validated_data['type'], contents_info)
+    deadline_timestamp = last(dates) and last(dates)['timestamp']
+
+    if material:
+        material.name = name
+        material.url = url
+        material.type = material_type
+        if deadline_timestamp:
+            material.deadline = datetime.fromtimestamp(deadline_timestamp)
+        material.save()
+
+    else:
+        data = {'name': name, 'moodle_id': moodle__id, 'url': url, 'type': type}
+        if deadline_timestamp:
+            data |= {'deadline': deadline_timestamp}
+        material = module.materials.create(**data)
+
+    _create_checks_for_material(material)
+
+
+def _create_checks_for_material(material: Material) -> None:
+    material_learners = lmapcat(
+        lambda manager: manager.all(),
+        lpluck_attr('students', material.module.course.groups.all()),
+    )
+
+    material_checks = []
+    for material_learner in material_learners:
+        try:
+            CheckMaterial.objects.get(user=material_learner, material=material)
+        except CheckMaterial.DoesNotExist:
+            material_checks.append(
+                CheckMaterial(user=material_learner, material=material)
+            )
+
+    CheckMaterial.objects.bulk_create(material_checks)
