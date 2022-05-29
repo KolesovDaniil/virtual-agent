@@ -6,18 +6,9 @@ from django.utils.timezone import now
 from funcy import lmapcat, lpluck_attr, walk_values
 
 from courses.models import Module
-from materials.models import CheckMaterial, Material, MaterialTypes
+from materials.models import MATERIAL_WEIGHTS_IN_MINUTES, CheckMaterial, Material
 from notifications.models import Notification
 from users.models import User
-
-MATERIAL_WEIGHTS_IN_MINUTES = {
-    MaterialTypes.QUIZ: 20,
-    MaterialTypes.PRESENTATION: 45,
-    MaterialTypes.PDF: 30,
-    MaterialTypes.VIDEO: 45,
-    MaterialTypes.TEXT: 25,
-    MaterialTypes.OTHER: 40,
-}
 
 
 def create_notifications() -> None:
@@ -29,7 +20,6 @@ def create_notifications() -> None:
         start_date = now()
         end_date = start_date + timedelta(weeks=1)
         _create_notifications_for_user_per_module()
-
 
 
 def _get_materials_to_learn_for_module(

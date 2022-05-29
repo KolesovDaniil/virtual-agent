@@ -1,6 +1,7 @@
-from rest_framework import serializers
-from typing import Optional
 from datetime import datetime
+from typing import Optional
+
+from rest_framework import serializers
 
 from courses.models import Course
 from users.models import Group

@@ -18,6 +18,16 @@ class MaterialTypes(str, ChoicesEnum):
     OTHER = 'other', 'Другое'
 
 
+MATERIAL_WEIGHTS_IN_MINUTES = {
+    MaterialTypes.QUIZ: 20,
+    MaterialTypes.PRESENTATION: 45,
+    MaterialTypes.PDF: 30,
+    MaterialTypes.VIDEO: 45,
+    MaterialTypes.TEXT: 25,
+    MaterialTypes.OTHER: 40,
+}
+
+
 class Material(models.Model):
     uuid = models.UUIDField(primary_key=True, default=uuid4)
     name = models.CharField(max_length=128)
