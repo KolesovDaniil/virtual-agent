@@ -3,6 +3,7 @@ from django.views.decorators.csrf import ensure_csrf_cookie
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 from rest_framework.routers import SimpleRouter
 
+from bot.views import MainBotAPIView
 from chats.views import GetUserChatsView, MessageViewSet
 from courses.views import UserCoursesAPIView
 from faq.views import FAQAPIView
@@ -23,10 +24,11 @@ api_urls = [
         MaterialCheckAPIView.as_view(),
         name='check_material',
     ),
+    path('bot/', MainBotAPIView.as_view(), name='bot'),
 ]
 
 urlpatterns = [
-    path('', include(messages_router.urls)),
+    path('api/', include(messages_router.urls)),
     path('api/', include((api_urls, 'api'))),
     path('schema/', SpectacularAPIView.as_view(), name='schema'),
     path('schema-ui/', SpectacularSwaggerView.as_view(url_name='schema')),

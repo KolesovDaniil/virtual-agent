@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'faq.apps.FaqConfig',
     'materials.apps.MaterialsConfig',
     'notifications.apps.NotificationsConfig',
+    'bot.apps.BotConfig',
     'rest_framework',
     'drf_spectacular',
     'corsheaders',

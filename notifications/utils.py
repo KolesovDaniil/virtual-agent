@@ -3,11 +3,15 @@ from datetime import datetime, timedelta
 from typing import Generator, Iterable
 
 from django.utils.timezone import now
-from funcy import lmapcat, lpluck_attr, walk_values
-from funcy import joining
+from funcy import joining, lmapcat, lpluck_attr, walk_values
 
 from courses.models import Module
-from materials.models import MATERIAL_WEIGHTS_IN_MINUTES, CheckMaterial, Material, MaterialTypes
+from materials.models import (
+    MATERIAL_WEIGHTS_IN_MINUTES,
+    CheckMaterial,
+    Material,
+    MaterialTypes,
+)
 from notifications.models import Notification, NotificationsTimetable
 from users.models import User
 
@@ -112,21 +116,25 @@ def get_text_for_notification(notification: Notification) -> Generator:
         yield _get_text_for_presentations(presentations)
 
 
-
 def _get_text_for_quizes(quizes: Iterable[Material]) -> str:
     pass
+
 
 def _get_text_for_texts(texts: Iterable[Material]) -> str:
     pass
 
+
 def _get_text_for_pdfs(pdfs: Iterable[Material]) -> str:
     pass
+
 
 def _get_text_for_presentations(presentations: Iterable[Material]) -> str:
     pass
 
+
 def _get_text_for_videos(videos: Iterable[Material]) -> str:
     pass
+
 
 def _get_text_for_others(others: Iterable[Material]) -> str:
     pass
