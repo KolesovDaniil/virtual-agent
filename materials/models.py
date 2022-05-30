@@ -39,6 +39,16 @@ class Material(models.Model):
     url = models.URLField()
     deadline = models.DateTimeField(null=True, blank=True)
 
+    def get_url_for_check(self, user: User) -> str:
+        check = CheckMaterial.objects.get(material=self, user=user)
+        check_url = join_url_parts(
+            settings.BASE_URL,
+            reverse('api:check_material', args=[str(check.uuid)]),
+            first_slash=False,
+            trailing_slash=True,
+        )
+        return check_url
+
 
 class CheckMaterial(models.Model):
     uuid = models.UUIDField(primary_key=True, default=uuid4)
@@ -55,13 +65,3 @@ class CheckMaterial(models.Model):
 
     def __hash__(self):
         return hash(str(self.uuid))
-
-    @property
-    def url(self) -> str:
-        check_url = join_url_parts(
-            settings.BASE_URL,
-            reverse('api:check_material', args=[str(self.uuid)]),
-            first_slash=False,
-            trailing_slash=True,
-        )
-        return check_url

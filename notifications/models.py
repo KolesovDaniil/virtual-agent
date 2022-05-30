@@ -12,12 +12,6 @@ class Notification(models.Model):
     user = models.ForeignKey(
         User, related_name='notifications', on_delete=models.CASCADE
     )
-    is_actual = models.BooleanField(default=True)
-
-    @property
-    def text(self) -> str:
-
-        return 'text text'
 
 
 class NotificationsTimetable(models.Model):
@@ -26,3 +20,4 @@ class NotificationsTimetable(models.Model):
         Notification, related_name='timetable', on_delete=models.CASCADE
     )
     send_time = models.DateTimeField()
+    is_actual = models.BooleanField(default=True)

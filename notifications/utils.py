@@ -1,7 +1,9 @@
 from collections import defaultdict
 from datetime import datetime, timedelta
-from typing import Generator, Iterable
+from typing import Generator, Iterable, Optional
 
+from django.core.mail import send_mail
+from django.utils.safestring import mark_safe
 from django.utils.timezone import now
 from funcy import joining, lmapcat, lpluck_attr, walk_values
 
@@ -14,6 +16,25 @@ from materials.models import (
 )
 from notifications.models import Notification, NotificationsTimetable
 from users.models import User
+
+
+def send_notifications() -> None:
+    actual_tasks = NotificationsTimetable.objects.filter(
+        is_actual=True, send_time__lt=now()
+    )
+    notifications_to_send = lpluck_attr('notification', actual_tasks)
+
+    for notification in notifications_to_send:
+        if not notification.user.email:
+            continue
+
+        send_mail(
+            'Запланировано к изучению',
+            mark_safe(get_text_for_notification(notification)),
+            'agentped@yandex.ru',
+            [notification.user.email],
+        )
+    actual_tasks.update(is_actual=False)
 
 
 def create_notifications() -> None:
@@ -96,46 +117,93 @@ def _create_notifications_for_materials(user: User, materials_to_day: dict) -> N
         task.save()
 
 
-@joining('<br>')
+@joining('\n')
 def get_text_for_notification(notification: Notification) -> Generator:
     materials = notification.materials.all()
+    user = notification.user
+
+    yield 'Доброе утро! Сегодня мы предлагаем вам изучить:'
 
     quizes = materials.filter(type=MaterialTypes.QUIZ)
     if quizes.exists():
-        yield _get_text_for_quizes(quizes)
+        yield _get_text_for_quizes(user, quizes)
+        yield '\n'
 
     texts = materials.filter(type=MaterialTypes.TEXT)
     if texts.exists():
-        yield _get_text_for_texts(texts)
+        yield _get_text_for_texts(user, texts)
+        yield '\n'
 
     pdfs = materials.filter(type=MaterialTypes.PDF)
     if pdfs.exists():
-        yield _get_text_for_pdfs(pdfs)
+        yield _get_text_for_pdfs(user, pdfs)
+        yield '\n'
 
     presentations = materials.filter(type=MaterialTypes.PRESENTATION)
     if presentations.exists():
-        yield _get_text_for_presentations(presentations)
+        yield _get_text_for_presentations(user, presentations)
+        yield '\n'
+
+    videos = materials.filter(type=MaterialTypes.VIDEO)
+    if videos.exists():
+        yield _get_text_for_videos(user, videos)
+        yield '\n'
+
+    others = materials.filter(type=MaterialTypes.OTHER)
+    if others.exists():
+        yield _get_text_for_others(user, others)
+        yield '\n'
 
 
-def _get_text_for_quizes(quizes: Iterable[Material]) -> str:
-    pass
+@joining('\n')
+def _get_text_for_quizes(user: User, quizes: Iterable[Material]) -> str:
+    yield 'Квизы:'
+
+    for quiz in quizes:
+        yield f'– {quiz.get_url_for_check(user)}'
 
 
-def _get_text_for_texts(texts: Iterable[Material]) -> str:
-    pass
+@joining('\n')
+def _get_text_for_texts(user: User, texts: Iterable[Material]) -> str:
+    yield 'Тексты:'
+
+    for text in texts:
+        yield f'– {text.get_url_for_check(user)}'
 
 
-def _get_text_for_pdfs(pdfs: Iterable[Material]) -> str:
-    pass
+@joining('\n')
+def _get_text_for_pdfs(user: User, pdfs: Iterable[Material]) -> str:
+    yield 'PDFs:'
+
+    for pdf in pdfs:
+        yield f'– {pdf.get_url_for_check(user)}'
 
 
-def _get_text_for_presentations(presentations: Iterable[Material]) -> str:
-    pass
+@joining('\n')
+def _get_text_for_presentations(user: User, presentations: Iterable[Material]) -> str:
+    yield 'Презентации:'
+
+    for presentation in presentations:
+        yield f'– {presentation.get_url_for_check(user)}'
 
 
-def _get_text_for_videos(videos: Iterable[Material]) -> str:
-    pass
+@joining('\n')
+def _get_text_for_videos(user: User, videos: Iterable[Material]) -> str:
+    yield 'Видео:'
+
+    for video in videos:
+        yield f'– {video.get_url_for_check(user)}'
 
 
-def _get_text_for_others(others: Iterable[Material]) -> str:
-    pass
+@joining('\n')
+def _get_text_for_others(user: User, others: Iterable[Material]) -> str:
+    yield 'Другое:'
+
+    for other in others:
+        yield f'– {other.get_url_for_check(user)}'
+
+
+def a_tag(link: str, title: Optional[str] = None, target_blank: bool = False) -> str:
+    title = title or link
+    target = ' target="_blank"' if target_blank else ''
+    return mark_safe(f'<a href="{link}"{target}>{title}</a>')  # nosec
