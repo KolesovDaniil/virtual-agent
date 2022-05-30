@@ -1,10 +1,7 @@
-import csv
-from io import StringIO
 from typing import Any
 
 from django.core.files.uploadedfile import InMemoryUploadedFile
 from drf_spectacular.utils import extend_schema
-from funcy import first, last
 from rest_framework.generics import get_object_or_404
 from rest_framework.request import Request
 from rest_framework.response import Response
@@ -13,8 +10,8 @@ from rest_framework.views import APIView
 from courses.models import Course
 from virtual_agent.utils import ResponseWithStatusAndError
 
-from .models import FAQ
 from .serializers import CreateFAQSerializer, FAQSerializer
+from .utils import create_faq_from_csv
 
 
 @extend_schema(
@@ -32,16 +29,7 @@ class FAQAPIView(APIView):
         request_serializer = CreateFAQSerializer(data=request.data)
         request_serializer.is_valid(raise_exception=True)
         csv_file: InMemoryUploadedFile = request_serializer.validated_data['csv_file']
-        content = StringIO(csv_file.read().decode('utf-8'))
-        reader = csv.DictReader(content, delimiter=';')
-        faqs = []
-        for row in reader:
-            print(row)
-            question = first(row.values())
-            answer = last(row.values())
-            faqs.append(FAQ(question=question, answer=answer, course=course))
-        course.faqs.all().delete()
-        faqs = FAQ.objects.bulk_create(faqs)
+        faqs = create_faq_from_csv(csv_file, course)
 
         return Response(FAQSerializer(faqs, many=True).data)
 

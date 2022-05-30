@@ -9,7 +9,7 @@ from rest_framework.views import APIView
 
 from virtual_agent.utils import EmptyResponse, ResponseWithStatusAndError
 
-from .models import CheckMaterial, Material
+from .models import CheckMaterial
 
 
 @extend_schema(

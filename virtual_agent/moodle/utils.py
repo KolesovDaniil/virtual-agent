@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-from typing import Iterable, Optional, Union
+from typing import Optional
 
 from django.db.models import QuerySet
 from django.utils.timezone import now
@@ -127,7 +127,6 @@ def _create_or_update_user(user_data: dict):
         create_serializer = UserSerializer(data=user_data)
         create_serializer.is_valid(raise_exception=True)
         user = create_serializer.save()
-        print(user)
 
 
 def _create_module_for_course(module_data: dict, course: Course) -> Module:

@@ -5,9 +5,11 @@ from virtual_agent.utils import ChoicesEnum
 
 
 class UserStatesEnum(int, ChoicesEnum):
-    FAQ_COURSE = 1, 'FAQ номер курса'
-    FAQ_QUESTION = 2, 'FAQ номер вопроса'
-    DEADLINES_COURSE = 3, 'Дедлайны номер курса'
+    FAQ_CSV_DOWNLOAD = 3, 'FAQ загрузка файла'
+    FAQ_INFO_QUESTIONS = 4, 'FAQ получение вопросов'
+    FAQ_CSV_SUCCESS = 5, 'FAQ загрузка файла прошла успешно'
+    FAQ_INFO_ANSWER = 6, 'FAQ получение ответа'
+    DEADLINES_COURSE = 7, 'Дедлайны номер курса'
 
 
 class UserState(models.Model):

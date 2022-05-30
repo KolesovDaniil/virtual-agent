@@ -3,7 +3,6 @@ from uuid import uuid4
 from django.conf import settings
 from django.db import models
 
-from users.models import User
 from virtual_agent.utils import join_url_parts
 
 
@@ -45,4 +44,4 @@ class Module(models.Model):
         from materials.models import MATERIAL_WEIGHTS_IN_MINUTES
 
         content_types = self.materials.values_list('type', flat=True)
-        return sum(map(lambda type_: MATERIAL_WEIGHTS_IN_MINUTES[type_], content_types))
+        return sum(MATERIAL_WEIGHTS_IN_MINUTES[type_] for type_ in content_types)

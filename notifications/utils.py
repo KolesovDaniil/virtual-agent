@@ -22,12 +22,12 @@ def create_notifications() -> None:
     for module in modules:
         materials_to_learn = _get_materials_to_learn_for_module(module)
         for user, materials_weights in materials_to_learn:
-            _create_notifications_for_user_per_module(
-                user,
+            materials_to_day = _distribute_materials_within_module(
                 start_date=module.start_date,
                 end_date=module.end_date,
                 materials_weights=materials_weights,
             )
+            _create_notifications_for_materials(user, materials_to_day)
 
 
 def _get_materials_to_learn_for_module(module: Module) -> Generator:
@@ -62,12 +62,9 @@ def _get_materials_to_learn_for_module(module: Module) -> Generator:
         yield user, materials_normalized_weights
 
 
-def _create_notifications_for_user_per_module(
-    user: User,
-    start_date: datetime,
-    end_date: datetime,
-    materials_weights: dict[Material, float],
-):
+def _distribute_materials_within_module(
+    start_date: datetime, end_date: datetime, materials_weights: dict[Material, float]
+) -> dict[datetime, list[Material]]:
     period_in_seconds = (end_date - start_date).total_seconds()
     materials_period_in_seconds = {
         material: period_in_seconds * weight
@@ -85,7 +82,11 @@ def _create_notifications_for_user_per_module(
             datetime(year=now().year, month=notification_month, day=notification_day)
         ].append(material)
 
-    for notification_send_time, materials in materials_to_notification_day.items():
+    return materials_to_notification_day
+
+
+def _create_notifications_for_materials(user: User, materials_to_day: dict) -> None:
+    for notification_send_time, materials in materials_to_day.items():
         notification = Notification(user=user)
         notification.save()
         notification.materials.add(*materials)

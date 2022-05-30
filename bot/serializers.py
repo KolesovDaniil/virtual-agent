@@ -11,5 +11,5 @@ class BotResponseSerializer(serializers.Serializer):
 
 
 class BotRequestSerializer(serializers.Serializer):
-    text = serializers.CharField()
-    csv = serializers.FileField(required=False)
+    text = serializers.CharField(required=False)
+    csv_file = serializers.FileField(required=False)

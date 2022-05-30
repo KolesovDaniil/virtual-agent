@@ -7,7 +7,7 @@ from .models import MaterialTypes
 MIMETYPE_TO_FILE_TYPE_MAPPING = {
     'video/mp4': MaterialTypes.VIDEO,
     (
-        'application/vnd.openxmlformats-' 'officedocument.presentationml.presentation'
+        'application/vnd.openxmlformats-officedocument.presentationml.presentation'
     ): MaterialTypes.PRESENTATION,
     'application/pdf': MaterialTypes.PDF,
 }

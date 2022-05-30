@@ -6,7 +6,7 @@ from funcy import invoke, joining, keep
 @joining('/')
 def join_url_parts(
     *parts: Any, first_slash: bool = True, trailing_slash: bool = True
-) -> str:
+) -> Generator:
     parts_ = map(str, parts)
 
     if first_slash:

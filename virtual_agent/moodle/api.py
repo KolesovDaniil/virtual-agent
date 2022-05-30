@@ -4,7 +4,6 @@ from typing import Optional
 import requests
 from django.conf import settings
 from furl import furl
-from requests import Response
 
 from virtual_agent.utils import join_url_parts, safe_request_method
 
