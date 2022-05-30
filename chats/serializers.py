@@ -16,7 +16,13 @@ class MessageSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Message
-        fields = ['uuid', 'text', 'chat', 'user']
+        fields = ['uuid', 'text', 'user']
+
+
+class ChatMessagesSerializer(serializers.Serializer):
+    self_user = SimpleUserSerializer()
+    chat = serializers.UUIDField()
+    messages = MessageSerializer(many=True)
 
 
 class CreateMessageSerializer(serializers.ModelSerializer):

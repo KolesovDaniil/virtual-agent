@@ -7,13 +7,18 @@ from rest_framework.exceptions import PermissionDenied
 from rest_framework.generics import get_object_or_404
 from rest_framework.request import Request
 from rest_framework.response import Response
-from rest_framework.serializers import Serializer
 from rest_framework.views import APIView
 
 from virtual_agent.utils import ResponseWithStatusAndError
 
 from .models import Chat, Message
-from .serializers import ChatSerializer, CreateMessageSerializer, MessageSerializer
+from .serializers import (
+    ChatMessagesSerializer,
+    ChatSerializer,
+    CreateMessageSerializer,
+    MessageSerializer,
+    SimpleUserSerializer,
+)
 
 
 @extend_schema(tags=['Messages'])
@@ -25,11 +30,6 @@ class MessageViewSet(
     serializer_class = MessageSerializer
     lookup_field = 'chat_uuid'
 
-    def get_serializer_class(self) -> type[Serializer]:
-        if self.action == 'create':
-            return CreateMessageSerializer
-        return self.serializer_class
-
     def get_object(self) -> Chat:
         chat_uuid = self.kwargs[self.lookup_field]
         return get_object_or_404(Chat.objects.all(), uuid=chat_uuid)
@@ -39,7 +39,7 @@ class MessageViewSet(
         responses={'201': MessageSerializer, '4XX': ResponseWithStatusAndError},
     )
     def create(self, request: Request, *args: Any, **kwargs: Any) -> Response:
-        request_serializer = self.get_serializer(data=request.data)
+        request_serializer = CreateMessageSerializer(data=request.data)
         request_serializer.is_valid(raise_exception=True)
 
         user = request.user
@@ -58,10 +58,7 @@ class MessageViewSet(
         return Response(response_serializer.data, status=status.HTTP_201_CREATED)
 
     @extend_schema(
-        responses={
-            '201': MessageSerializer(many=True),
-            '4XX': ResponseWithStatusAndError,
-        }
+        responses={'201': ChatMessagesSerializer, '4XX': ResponseWithStatusAndError}
     )
     def retrieve(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         chat = self.get_object()
@@ -71,7 +68,11 @@ class MessageViewSet(
         if chat not in user_chats:
             raise PermissionDenied('You do not have access to read chat messages')
 
-        response_serializer = MessageSerializer(chat.messages.all(), many=True)
+        data = MessageSerializer(chat.messages.all(), many=True).data
+        data['chat'] = str(chat.uuid)
+        data['self_user'] = SimpleUserSerializer(user).data
+        response_serializer = ChatMessagesSerializer(data)
+
         return Response(response_serializer.data)
 
 
