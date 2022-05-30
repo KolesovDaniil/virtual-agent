@@ -17,11 +17,13 @@ from .serializers import (
     GroupSerializer,
     MaterialSerializer,
     ModuleSerializer,
+    UserSerializer,
 )
 
 
 def sync_database():
     create_courses()
+    create_or_update_users()
     create_groups()
     create_chats()
     create_modules_with_materials()
@@ -95,6 +97,37 @@ def create_modules_with_materials() -> None:
         course.end_date = end_date
         course.save()
         _add_deadlines_for_course_modules(course)
+
+
+def create_or_update_users() -> None:
+    courses = Course.objects.all()
+    for course in courses:
+        participants_data = moodle_api.get_info_about_course_users(course.moodle_id)
+
+        for user_data in participants_data:
+            _create_or_update_user(user_data)
+
+
+def _create_or_update_user(user_data: dict):
+    serializer = UserSerializer(data=user_data)
+    serializer.is_valid(raise_exception=True)
+    moodle_id = serializer.validated_data['moodle_id']
+    user = User.objects.filter(moodle_id=moodle_id).first()
+
+    first_name = serializer.validated_data['first_name']
+    email = serializer.validated_data['email']
+    type_ = serializer.validated_data['type']
+    if user:
+        user.first_name = first_name
+        user.moodle_id = moodle_id
+        user.email = email
+        user.type_ = type_
+        user.save()
+    else:
+        create_serializer = UserSerializer(data=user_data)
+        create_serializer.is_valid(raise_exception=True)
+        user = create_serializer.save()
+        print(user)
 
 
 def _create_module_for_course(module_data: dict, course: Course) -> Module:

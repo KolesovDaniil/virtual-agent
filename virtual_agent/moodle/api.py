@@ -52,7 +52,7 @@ class MoodleAPI:
         error_msg='Moodle is unavailable', raise_as=NoResponseFromMoodle
     )
 
-    def get_user_courses(self, moodle_user_id: int):
+    def get_user_courses(self, moodle_user_id: int) -> list:
         params = {
             'wstoken': self.token,
             'wsfunction': 'core_enrol_get_users_courses',
@@ -69,7 +69,7 @@ class MoodleAPI:
 
         return requests.request('POST', url).json()
 
-    def get_user_groups(self, moodle_user_id: int) -> Response:
+    def get_user_groups(self, moodle_user_id: int) -> list:
         params = {
             'wstoken': self.token,
             'wsfunction': 'core_group_get_course_user_groups',
@@ -86,10 +86,27 @@ class MoodleAPI:
 
         return requests.request('POST', url).json()['groups']
 
-    def get_course_content(self, moodle_course_id: int) -> Response:
+    def get_course_content(self, moodle_course_id: int) -> list:
         params = {
             'wstoken': self.token,
             'wsfunction': 'core_course_get_contents',
+            'moodlewsrestformat': 'json',
+            'courseid': moodle_course_id,
+        }
+        url = join_url_parts(
+            self.base_url,
+            'webservice/rest/server.php',
+            first_slash=False,
+            trailing_slash=False,
+        )
+        url = furl(url).add(params).url
+
+        return requests.request('POST', url).json()
+
+    def get_info_about_course_users(self, moodle_course_id: int) -> list:
+        params = {
+            'wstoken': self.token,
+            'wsfunction': 'core_enrol_get_enrolled_users',
             'moodlewsrestformat': 'json',
             'courseid': moodle_course_id,
         }

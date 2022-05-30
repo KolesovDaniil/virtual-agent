@@ -1,10 +1,16 @@
 from datetime import datetime
 from typing import Optional
 
+from funcy import first
 from rest_framework import serializers
 
 from courses.models import Course
-from users.models import Group
+from users.models import Group, User, UserTypes
+
+ROLE_TO_USER_TYPE_MAPPING = {
+    'student': UserTypes.STUDENT,
+    'editingteacher': UserTypes.LECTURER,
+}
 
 
 class CourseSerializer(serializers.ModelSerializer):
@@ -51,3 +57,19 @@ class MaterialSerializer(serializers.Serializer):
     url = serializers.URLField()
     modname = serializers.CharField(source='type')
     contentsinfo = serializers.DictField(required=False, source='contents_info')
+
+
+class UserSerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField(source='moodle_id')
+    fullname = serializers.CharField(source='first_name')
+    email = serializers.EmailField()
+    roles = serializers.ListField(child=serializers.DictField(), source='type')
+
+    class Meta:
+        model = User
+        fields = ['id', 'fullname', 'email', 'roles']
+
+    def validate_roles(self, value: list) -> int:
+        role_info = first(value)
+        role_short_name = role_info['shortname']
+        return ROLE_TO_USER_TYPE_MAPPING.get(role_short_name, UserTypes.STUDENT)

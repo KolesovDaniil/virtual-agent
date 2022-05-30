@@ -1,30 +1,32 @@
 from collections import defaultdict
 from datetime import datetime, timedelta
-from typing import Generator
+from typing import Generator, Iterable
 
 from django.utils.timezone import now
 from funcy import lmapcat, lpluck_attr, walk_values
+from funcy import joining
 
 from courses.models import Module
-from materials.models import MATERIAL_WEIGHTS_IN_MINUTES, CheckMaterial, Material
-from notifications.models import Notification
+from materials.models import MATERIAL_WEIGHTS_IN_MINUTES, CheckMaterial, Material, MaterialTypes
+from notifications.models import Notification, NotificationsTimetable
 from users.models import User
 
 
 def create_notifications() -> None:
-    modules = Module.objects.all()
+    modules = Module.objects.exclude(section=0)
 
     for module in modules:
-        deadline = module.deadline or now() + timedelta(weeks=1)
         materials_to_learn = _get_materials_to_learn_for_module(module)
-        start_date = now()
-        end_date = start_date + timedelta(weeks=1)
-        _create_notifications_for_user_per_module()
+        for user, materials_weights in materials_to_learn:
+            _create_notifications_for_user_per_module(
+                user,
+                start_date=module.start_date,
+                end_date=module.end_date,
+                materials_weights=materials_weights,
+            )
 
 
-def _get_materials_to_learn_for_module(
-    module: Module,
-) -> Generator[tuple[User, dict[Material, float]]]:
+def _get_materials_to_learn_for_module(module: Module) -> Generator:
     module_materials = module.materials.all()
     module_users = lmapcat(
         lambda manager: manager.all(),
@@ -80,13 +82,51 @@ def _create_notifications_for_user_per_module(
         ].append(material)
 
     for notification_send_time, materials in materials_to_notification_day.items():
-        notification_text = get_notification_text(materials)
-        notification = Notification(text=notification_text)
+        notification = Notification(user=user)
         notification.save()
-        user.notifications_timetable.create(
-            send_time=notification_send_time, notification=notification
+        notification.materials.add(*materials)
+        task = NotificationsTimetable(
+            notification=notification, send_time=notification_send_time
         )
+        task.save()
 
 
-def get_notification_text(materials: list[Material]) -> str:
-    return 'text text'
+@joining('<br>')
+def get_text_for_notification(notification: Notification) -> Generator:
+    materials = notification.materials.all()
+
+    quizes = materials.filter(type=MaterialTypes.QUIZ)
+    if quizes.exists():
+        yield _get_text_for_quizes(quizes)
+
+    texts = materials.filter(type=MaterialTypes.TEXT)
+    if texts.exists():
+        yield _get_text_for_texts(texts)
+
+    pdfs = materials.filter(type=MaterialTypes.PDF)
+    if pdfs.exists():
+        yield _get_text_for_pdfs(pdfs)
+
+    presentations = materials.filter(type=MaterialTypes.PRESENTATION)
+    if presentations.exists():
+        yield _get_text_for_presentations(presentations)
+
+
+
+def _get_text_for_quizes(quizes: Iterable[Material]) -> str:
+    pass
+
+def _get_text_for_texts(texts: Iterable[Material]) -> str:
+    pass
+
+def _get_text_for_pdfs(pdfs: Iterable[Material]) -> str:
+    pass
+
+def _get_text_for_presentations(presentations: Iterable[Material]) -> str:
+    pass
+
+def _get_text_for_videos(videos: Iterable[Material]) -> str:
+    pass
+
+def _get_text_for_others(others: Iterable[Material]) -> str:
+    pass
