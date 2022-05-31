@@ -1,4 +1,4 @@
-from django.urls import include, path
+from django.urls import include, path, re_path
 from django.views.decorators.csrf import ensure_csrf_cookie
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 from rest_framework.routers import SimpleRouter
@@ -28,6 +28,7 @@ api_urls = [
 ]
 
 urlpatterns = [
+    re_path(r'^webpush/', include('webpush.urls'), name='webpush'),
     path('api/', include(messages_router.urls)),
     path('api/', include((api_urls, 'api'))),
     path('schema/', SpectacularAPIView.as_view(), name='schema'),

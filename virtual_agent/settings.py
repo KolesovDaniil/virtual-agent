@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'materials.apps.MaterialsConfig',
     'notifications.apps.NotificationsConfig',
     'bot.apps.BotConfig',
+    'webpush',
     'rest_framework',
     'drf_spectacular',
     'corsheaders',
@@ -180,3 +181,10 @@ EMAIL_HOST_USER = env('SERVICE_EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = env('SERVICE_EMAIL_HOST_PASSWORD')
 EMAIL_PORT = 465
 EMAIL_USE_SSL = True
+
+
+WEBPUSH_SETTINGS = {
+    "VAPID_PUBLIC_KEY": 'BIz3mbm7r9FBHmopqXrwvrNuKXqzyRbKOcHirUgZKe-blsSikFkWfWnJbmnmM-Fp-BBan8qVdyQjSDsoStC71nU',
+    "VAPID_PRIVATE_KEY": 'U3spybb4SXfwK4F5MG1XB7YgPpVPqT57Pe9KcfxQXnM',
+    "VAPID_ADMIN_EMAIL": 'kolesov.daniil39@gmail.com',
+}

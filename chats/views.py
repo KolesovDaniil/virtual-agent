@@ -68,9 +68,11 @@ class MessageViewSet(
         if chat not in user_chats:
             raise PermissionDenied('You do not have access to read chat messages')
 
-        data = MessageSerializer(chat.messages.all(), many=True).data
-        data['chat'] = str(chat.uuid)
-        data['self_user'] = SimpleUserSerializer(user).data
+        data = {
+            'messages': MessageSerializer(chat.messages.all(), many=True).data,
+            'chat': str(chat.uuid),
+            'self_user': SimpleUserSerializer(user).data,
+        }
         response_serializer = ChatMessagesSerializer(data)
 
         return Response(response_serializer.data)
