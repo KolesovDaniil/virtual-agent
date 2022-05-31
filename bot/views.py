@@ -8,6 +8,7 @@ from drf_spectacular.utils import extend_schema
 from funcy import joining, lcat, lpluck_attr
 from rest_framework.request import Request
 from rest_framework.response import Response
+from django.views.decorators.csrf import csrf_exempt
 from rest_framework.views import APIView
 
 from courses.models import Course
@@ -37,6 +38,7 @@ DEFAULT_BUTTONS = [{'title': 'Дедлайны'}, {'title': 'FAQ'}]
 class MainBotAPIView(APIView):
     permission_classes = ()
 
+    @csrf_exempt
     def post(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         user = request.user
         user_state = _get_user_state(user)
