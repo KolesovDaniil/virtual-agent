@@ -20,6 +20,8 @@ DEBUG = env('DEBUG', bool, default=False)
 CSRF_COOKIE_SECURE = not DEBUG
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOWED_ORIGINS = env('CORS_ALLOWED_ORIGINS', list, default=[])
+CSRF_COOKIE_DOMAIN = env('CSRF_COOKIE_DOMAIN', default=None)
+CSRF_TRUSTED_ORIGINS = env('CSRF_TRUSTED_ORIGINS', list, default=[])
 
 ALLOWED_HOSTS = env('ALLOWED_HOSTS', default=[])
 
